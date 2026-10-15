@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CreatorPulse Suite - Customizable Reviews</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            },
+            accent: {
+              cyan: '#06b6d4',
+              pink: '#ec4899',
+              amber: '#f59e0b',
+              emerald: '#10b981'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts & FontAwesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    .shorts-aspect { aspect-ratio: 9 / 16; }
+
+    @media print {
+      body * { visibility: hidden; }
+      #printableProposal, #printableProposal * { visibility: visible; }
+      #printableProposal {
+        position: absolute; left: 0; top: 0; width: 100%;
+        margin: 0; padding: 32px; background: white !important; color: black !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- Header Navigation -->
+  <header class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('dashboard')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 via-indigo-500 to-accent-pink flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
+          <i class="fa-solid fa-chart-line text-lg"></i>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xl font-extrabold tracking-tight text-white">CreatorPulse</span>
+          <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-brand-500/20 text-brand-400 border border-brand-500/30 uppercase tracking-widest">SUITE</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button onclick="openModal('pricingModal')" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 transition-all text-xs font-semibold">
+          <i class="fa-solid fa-crown text-xs"></i>
+          <span id="navTierBadge">Free Tier</span>
+        </button>
+
+        <button onclick="openModal('pricingModal')" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-semibold text-xs shadow-lg shadow-brand-600/20 transition-all hover:scale-[1.02]">
+          <i class="fa-solid fa-bolt"></i>
+          <span>Upgrade Tier</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Workspace Layout -->
+  <div class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row gap-8">
+
+    <!-- Navigation Sidebar -->
+    <aside class="w-full md:w-64 flex-shrink-0 space-y-6">
+      <nav class="space-y-1.5">
+        <button id="nav-dashboard" onclick="switchTab('dashboard')" class="nav-btn w-full px-4 py-3 rounded-xl flex items-center justify-between text-sm font-semibold transition-all bg-brand-600 text-white shadow-lg shadow-brand-600/20">
+          <span class="flex items-center gap-3"><i class="fa-solid fa-grid-2 text-base"></i> Overview</span>
+        </button>
+
+        <div class="pt-3 pb-1">
+          <p class="px-4 text-[10px] font-bold uppercase tracking-wider text-slate-500">Suite Apps</p>
+        </div>
+
+        <button id="nav-clipper" onclick="switchTab('clipper')" class="nav-btn w-full px-4 py-3 rounded-xl flex items-center justify-between text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-900 transition-all">
+          <span class="flex items-center gap-3"><i class="fa-solid fa-scissors text-accent-pink"></i> Video Repurposer</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-accent-pink/20 text-accent-pink font-bold">Viral</span>
+        </button>
+
+        <button id="nav-proposals" onclick="switchTab('proposals')" class="nav-btn w-full px-4 py-3 rounded-xl flex items-center justify-between text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-900 transition-all">
+          <span class="flex items-center gap-3"><i class="fa-solid fa-file-signature text-accent-cyan"></i> Proposal Builder</span>
+        </button>
+
+        <button id="nav-reviews" onclick="switchTab('reviews')" class="nav-btn w-full px-4 py-3 rounded-xl flex items-center justify-between text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-900 transition-all">
+          <span class="flex items-center gap-3"><i class="fa-solid fa-star text-accent-amber"></i> Review Widget</span>
+        </button>
+      </nav>
+
+      <!-- Usage Allowance Meter -->
+      <div class="p-5 rounded-2xl glass-panel space-y-3">
+        <div class="flex items-center justify-between text-xs font-bold">
+          <span class="text-slate-400">Monthly Usage</span>
+          <span id="usagePercentText" class="text-emerald-400">0% Used</span>
+        </div>
+        <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+          <div id="usageProgressBar" class="bg-gradient-to-r from-brand-500 to-accent-pink h-full w-[0%] transition-all duration-500"></div>
+        </div>
+        <div class="flex justify-between text-[11px] text-slate-500 font-medium">
+          <span id="usageClipsCount">0 / 5 Videos</span>
+          <span id="sidebarTierLabel">Free Tier</span>
+        </div>
+      </div>
+
+      <button onclick="resetSuiteData()" class="w-full py-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-900 text-slate-400 text-xs font-semibold border border-slate-800 transition-all">
+        <i class="fa-solid fa-rotate-left mr-1.5"></i> Reset Demo State
+      </button>
+    </aside>
+
+    <!-- Main Content Workspace -->
+    <main class="flex-1 min-w-0">
+
+      <!-- ================= OVERVIEW TAB ================= -->
+      <section id="sec-dashboard" class="space-y-6">
+        <div class="p-8 rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-slate-800/80 shadow-2xl relative overflow-hidden">
+          <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-brand-500/10 rounded-full blur-3xl"></div>
+          <div class="relative z-10 space-y-2 max-w-xl">
+            <h1 id="welcomeUserTitle" class="text-3xl font-extrabold text-white tracking-tight">Welcome back 👋</h1>
+            <p class="text-sm text-slate-400 leading-relaxed">
+              Track client proposals, video processing caps, and responsive review widgets in real-time.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="p-5 rounded-2xl glass-panel border-l-4 border-l-brand-500 space-y-2">
+            <div class="flex justify-between items-center text-slate-400 text-xs font-semibold">
+              <span>Active Plan</span>
+              <i class="fa-solid fa-crown text-amber-400"></i>
+            </div>
+            <p id="kpiTierVal" class="text-2xl font-extrabold text-white">Free Plan</p>
+            <p class="text-[11px] font-medium text-slate-500">5 Videos Included</p>
+          </div>
+
+          <div class="p-5 rounded-2xl glass-panel border-l-4 border-l-accent-pink space-y-2">
+            <div class="flex justify-between items-center text-slate-400 text-xs font-semibold">
+              <span>Videos Used</span>
+              <i class="fa-solid fa-video text-accent-pink"></i>
+            </div>
+            <p id="kpiClipsVal" class="text-2xl font-extrabold text-white">0 / 5</p>
+            <p id="kpiClipsSub" class="text-[11px] font-medium text-emerald-400">5 Videos Remaining</p>
+          </div>
+
+          <div class="p-5 rounded-2xl glass-panel border-l-4 border-l-accent-cyan space-y-2">
+            <div class="flex justify-between items-center text-slate-400 text-xs font-semibold">
+              <span>Proposal Pipeline</span>
+              <i class="fa-solid fa-wallet text-accent-cyan"></i>
+            </div>
+            <p class="text-2xl font-extrabold text-white">$14,250</p>
+            <p class="text-[11px] font-medium text-slate-500">2 Proposals Active</p>
+          </div>
+
+          <div class="p-5 rounded-2xl glass-panel border-l-4 border-l-accent-amber space-y-2">
+            <div class="flex justify-between items-center text-slate-400 text-xs font-semibold">
+              <span>Reviews Rating</span>
+              <i class="fa-solid fa-star text-accent-amber"></i>
+            </div>
+            <p class="text-2xl font-extrabold text-white">5.0 ★</p>
+            <p class="text-[11px] font-medium text-slate-500">Widget Active</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 pt-2">
+          <div onclick="switchTab('clipper')" class="p-6 rounded-2xl glass-panel hover:border-accent-pink/50 transition-all cursor-pointer group space-y-3">
+            <div class="w-12 h-12 rounded-2xl bg-accent-pink/10 border border-accent-pink/20 flex items-center justify-center text-accent-pink text-xl group-hover:scale-110 transition-transform">
+              <i class="fa-solid fa-scissors"></i>
+            </div>
+            <h3 class="font-bold text-white text-base group-hover:text-accent-pink transition-colors">Video Repurposer</h3>
+            <p class="text-xs text-slate-400 leading-relaxed">Auto-detect high engagement clips from long videos and generate vertical shorts.</p>
+          </div>
+
+          <div onclick="switchTab('proposals')" class="p-6 rounded-2xl glass-panel hover:border-accent-cyan/50 transition-all cursor-pointer group space-y-3">
+            <div class="w-12 h-12 rounded-2xl bg-accent-cyan/10 border border-accent-cyan/20 flex items-center justify-center text-accent-cyan text-xl group-hover:scale-110 transition-transform">
+              <i class="fa-solid fa-file-signature"></i>
+            </div>
+            <h3 class="font-bold text-white text-base group-hover:text-accent-cyan transition-colors">Proposal Builder</h3>
+            <p class="text-xs text-slate-400 leading-relaxed">Build branded proposal invoices with tax calculation and signature pad capture.</p>
+          </div>
+
+          <div onclick="switchTab('reviews')" class="p-6 rounded-2xl glass-panel hover:border-accent-amber/50 transition-all cursor-pointer group space-y-3">
+            <div class="w-12 h-12 rounded-2xl bg-accent-amber/10 border border-accent-amber/20 flex items-center justify-center text-accent-amber text-xl group-hover:scale-110 transition-transform">
+              <i class="fa-solid fa-star"></i>
+            </div>
+            <h3 class="font-bold text-white text-base group-hover:text-accent-amber transition-colors">Social Proof Widget</h3>
+            <p class="text-xs text-slate-400 leading-relaxed">Collect user reviews and paste script embed snippets directly onto your website.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIDEO REPURPOSER TAB ================= -->
+      <section id="sec-clipper" class="hidden space-y-6">
+        <div class="p-6 rounded-2xl glass-panel space-y-2">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-accent-pink/20 text-accent-pink border border-accent-pink/30">TOOL #1</span>
+              <h2 class="text-2xl font-extrabold text-white">AI Video Repurposer</h2>
+            </div>
+            <span id="clipperLimitBadge" class="text-xs font-bold px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300">5 Free Videos Limit</span>
+          </div>
+          <p class="text-xs text-slate-400">Process YouTube URLs or uploaded files. Free tier includes 5 videos total.</p>
+        </div>
+
+        <div id="limitAlertBox" class="hidden p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <i class="fa-solid fa-lock text-xl"></i>
+            <div>
+              <p class="text-xs font-bold">Video Processing Limit Reached</p>
+              <p class="text-[11px] text-rose-300/80">Upgrade your tier to unlock additional video processing allowance.</p>
+            </div>
+          </div>
+          <button onclick="openModal('pricingModal')" class="px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs shadow-md transition-all">Upgrade Plan</button>
+        </div>
+
+        <div class="p-6 rounded-2xl glass-panel space-y-4">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-400">YouTube Source Link</label>
+          <div class="flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-1">
+              <i class="fa-brands fa-youtube absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-lg"></i>
+              <input id="youtubeUrl" type="text" value="https://www.youtube.com/watch?v=dQw4w9WgXcQ" class="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-accent-pink text-slate-100 font-mono">
+            </div>
+            <button onclick="processVideoUrl()" class="px-6 py-3 rounded-xl bg-accent-pink hover:bg-pink-600 text-white font-bold text-sm shadow-lg shadow-pink-500/20 transition-all flex items-center justify-center gap-2">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> Process Video
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 space-y-4">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+              <span>Detected Viral Moments</span>
+              <span class="text-emerald-400 font-medium"><i class="fa-solid fa-circle-check mr-1"></i> Ready</span>
+            </h3>
+            <div id="clipListContainer" class="space-y-3"></div>
+          </div>
+
+          <div class="space-y-4">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Vertical Shorts Preview (9:16)</h3>
+            <div class="p-4 rounded-3xl glass-panel flex flex-col items-center">
+              <div class="w-full max-w-[220px] shorts-aspect rounded-2xl bg-slate-950 border-2 border-slate-800 relative overflow-hidden flex flex-col justify-between p-4 shadow-2xl">
+                <canvas id="previewCanvasBg" class="absolute inset-0 w-full h-full object-cover"></canvas>
+                
+                <div class="flex items-center justify-between z-10">
+                  <span class="px-2 py-0.5 rounded-full bg-slate-950/80 backdrop-blur-md text-[10px] font-bold text-white border border-slate-800">
+                    <i class="fa-solid fa-fire text-amber-400 mr-1"></i><span id="previewScore">Virality: 94</span>
+                  </span>
+                </div>
+
+                <div class="z-10 text-center space-y-2 mb-4">
+                  <p id="previewCaption" class="text-xs font-extrabold text-amber-300 bg-slate-950/90 px-3 py-1.5 rounded-xl border border-amber-500/30 shadow-lg">
+                    "This 1 trick DOUBLED my SaaS revenue in 30 days..."
+                  </p>
+                </div>
+
+                <div class="z-10 flex items-center justify-between text-white text-xs border-t border-white/10 pt-2 bg-slate-950/60 px-2 rounded-lg">
+                  <span id="previewTimestamp" class="font-mono text-[10px] text-slate-400">00:12 - 00:54</span>
+                  <button onclick="downloadClip()" class="px-2.5 py-1 rounded-lg bg-accent-pink hover:bg-pink-600 font-bold text-[10px] shadow-sm transition-all">Export HD</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= PROPOSAL BUILDER TAB ================= -->
+      <section id="sec-proposals" class="hidden space-y-6">
+        <div class="p-6 rounded-2xl glass-panel space-y-2">
+          <div class="flex items-center gap-3">
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/30">TOOL #2</span>
+            <h2 class="text-2xl font-extrabold text-white">Smart Proposal Builder</h2>
+          </div>
+          <p class="text-xs text-slate-400">Generate PDF proposals with live calculations and e-signature pad capture.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="p-6 rounded-2xl glass-panel space-y-5">
+            <h3 class="font-bold text-white text-xs uppercase tracking-wider border-b border-slate-800 pb-2">Proposal Details</h3>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] font-bold text-slate-400 mb-1">Your Business</label>
+                <input id="propVendorName" type="text" value="Apex Digital Agency" oninput="updateProposalPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-400 mb-1">Client Name</label>
+                <input id="propClientName" type="text" value="Acme Corp" oninput="updateProposalPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none">
+              </div>
+            </div>
+
+            <div class="space-y-3 pt-2">
+              <div class="flex items-center justify-between">
+                <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Line Items</h4>
+                <button onclick="addProposalLineItem()" class="text-xs text-accent-cyan hover:underline font-bold">+ Add Line Item</button>
+              </div>
+              <div id="lineItemsInputs" class="space-y-2"></div>
+            </div>
+
+            <div class="space-y-2 pt-2 border-t border-slate-800">
+              <div class="flex justify-between items-center">
+                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Draw E-Signature</label>
+                <button onclick="clearSignatureCanvas()" class="text-[10px] text-slate-400 hover:text-rose-400">Clear</button>
+              </div>
+              <canvas id="sigCanvas" class="w-full h-24 bg-slate-900 border border-slate-800 rounded-xl cursor-crosshair"></canvas>
+            </div>
+
+            <button onclick="printProposalPDF()" class="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition-all">
+              <i class="fa-solid fa-print mr-1.5"></i> Print / Download Proposal PDF
+            </button>
+          </div>
+
+          <!-- Document PDF Preview -->
+          <div class="space-y-3">
+            <h3 class="font-bold text-white text-xs uppercase tracking-wider">Document Preview</h3>
+
+            <div id="printableProposal" class="p-8 rounded-2xl bg-white text-slate-900 space-y-6 shadow-2xl min-h-[500px] flex flex-col justify-between">
+              <div class="space-y-4">
+                <div class="flex justify-between items-start border-b pb-4 border-slate-200">
+                  <div>
+                    <h2 id="pdfVendor" class="text-xl font-extrabold text-slate-900">Apex Digital Agency</h2>
+                    <p class="text-xs text-slate-500">Official Project Proposal & Quote</p>
+                  </div>
+                  <div class="px-3 py-1 rounded-lg text-white font-bold text-xs bg-indigo-600">
+                    Quote #PRO-2026
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <p class="font-bold text-slate-400 uppercase text-[10px]">Prepared For:</p>
+                    <p id="pdfClient" class="font-bold text-slate-800 text-sm">Acme Corp</p>
+                  </div>
+                  <div>
+                    <p class="font-bold text-slate-400 uppercase text-[10px]">Status:</p>
+                    <p class="font-bold text-slate-800 text-sm">Ready for Signature</p>
+                  </div>
+                </div>
+
+                <table class="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr class="border-b border-slate-300 text-slate-500 uppercase text-[10px]">
+                      <th class="py-2">Deliverable</th>
+                      <th class="py-2 text-right">Price</th>
+                    </tr>
+                  </thead>
+                  <tbody id="pdfTableBody" class="divide-y divide-slate-200"></tbody>
+                </table>
+              </div>
+
+              <div class="space-y-4 pt-4 border-t border-slate-200">
+                <div class="flex justify-end">
+                  <div class="w-48 space-y-1 text-xs">
+                    <div class="flex justify-between text-slate-500">
+                      <span>Subtotal:</span>
+                      <span id="pdfSubtotal">$0.00</span>
+                    </div>
+                    <div class="flex justify-between font-extrabold text-slate-900 text-sm pt-1 border-t border-slate-300">
+                      <span>Total Due:</span>
+                      <span id="pdfTotal">$0.00</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                  <p class="text-[10px] font-bold uppercase text-slate-400">Client Signature Approval</p>
+                  <div class="h-12 bg-white border border-dashed border-slate-300 rounded-lg flex items-center justify-center">
+                    <span id="sigText" class="text-xs text-slate-400 font-serif italic">Draw signature on pad to approve...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= CUSTOMIZABLE REVIEWS TAB ================= -->
+      <section id="sec-reviews" class="hidden space-y-6">
+        <div class="p-6 rounded-2xl glass-panel space-y-2">
+          <div class="flex items-center gap-3">
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-accent-amber/20 text-accent-amber border border-accent-amber/30">TOOL #3</span>
+            <h2 class="text-2xl font-extrabold text-white">Review & Social Proof Customizer</h2>
+          </div>
+          <p class="text-xs text-slate-400">Design custom testimonial widgets, configure themes, and copy script embed codes.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- Customizer Controls Side -->
+          <div class="p-6 rounded-2xl glass-panel space-y-5 lg:col-span-1">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+              <h3 class="font-bold text-white text-xs uppercase tracking-wider">Widget Customizer</h3>
+              <button onclick="openModal('addReviewModal')" class="px-3 py-1 rounded-lg bg-accent-amber hover:bg-amber-600 text-slate-950 font-bold text-xs shadow-md transition-all">
+                + Collect Review
+              </button>
+            </div>
+
+            <div class="space-y-4 text-xs">
+              <div>
+                <label class="block font-bold text-slate-400 mb-1">Header Title Text</label>
+                <input id="widgetTitleInput" type="text" value="Trusted by Growth Founders" oninput="updateWidgetPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-white focus:outline-none focus:ring-1 focus:ring-accent-amber">
+              </div>
+
+              <div>
+                <label class="block font-bold text-slate-400 mb-1">Display Layout Style</label>
+                <select id="widgetLayoutStyle" onchange="updateWidgetPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-white focus:outline-none">
+                  <option value="grid">2-Column Grid</option>
+                  <option value="list">Single Column Stack</option>
+                  <option value="badge">Compact Trust Badge</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block font-bold text-slate-400 mb-1">Accent & Star Color</label>
+                <select id="widgetStarColor" onchange="updateWidgetPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-white focus:outline-none">
+                  <option value="amber">Amber Gold (#f59e0b)</option>
+                  <option value="emerald">Emerald Green (#10b981)</option>
+                  <option value="cyan">Cyan Blue (#06b6d4)</option>
+                  <option value="indigo">Indigo Purple (#6366f1)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block font-bold text-slate-400 mb-1">Card Theme Style</label>
+                <select id="widgetCardTheme" onchange="updateWidgetPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-white focus:outline-none">
+                  <option value="dark">Dark Glass (Default)</option>
+                  <option value="charcoal">Sleek Charcoal</option>
+                  <option value="light">High-Contrast Light</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="space-y-2 pt-3 border-t border-slate-800">
+              <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">1-Line Script Embed</label>
+              <textarea readonly rows="2" class="w-full p-3 rounded-xl bg-slate-900 border border-slate-800 text-[11px] font-mono text-amber-400 focus:outline-none">&lt;script src="https://cdn.creatorpulse.io/widget.js" data-id="cp_9921" async&gt;&lt;/script&gt;</textarea>
+            </div>
+          </div>
+
+          <!-- Live Rendered Widget Preview Side -->
+          <div class="space-y-3 lg:col-span-2">
+            <h3 class="font-bold text-white text-xs uppercase tracking-wider flex items-center justify-between">
+              <span>Live Rendered Embed Preview</span>
+              <span class="text-xs text-slate-400 font-normal">Real-time Updates</span>
+            </h3>
+            
+            <div id="widgetPreviewBox" class="p-6 rounded-2xl glass-panel space-y-4 min-h-[350px]"></div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL: ADD CUSTOMIZABLE REVIEW -->
+  <div id="addReviewModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl relative">
+      <button onclick="closeModal('addReviewModal')" class="absolute top-5 right-5 text-slate-400 hover:text-white">
+        <i class="fa-solid fa-xmark text-xl"></i>
+      </button>
+
+      <h3 class="text-xl font-extrabold text-white">Add Customer Review</h3>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-400 mb-1">Customer Name</label>
+          <input id="revInputName" type="text" placeholder="e.g. Jordan Miller" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white focus:outline-none">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-400 mb-1">Role / Company</label>
+          <input id="revInputRole" type="text" placeholder="e.g. CEO, TechFlow" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white focus:outline-none">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-400 mb-1">Star Rating</label>
+          <div class="flex gap-2 text-amber-400 text-base cursor-pointer" id="modalStarSelector">
+            <i class="fa-solid fa-star" onclick="setModalStars(1)"></i>
+            <i class="fa-solid fa-star" onclick="setModalStars(2)"></i>
+            <i class="fa-solid fa-star" onclick="setModalStars(3)"></i>
+            <i class="fa-solid fa-star" onclick="setModalStars(4)"></i>
+            <i class="fa-solid fa-star" onclick="setModalStars(5)"></i>
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-400 mb-1">Testimonial Text</label>
+          <textarea id="revInputText" rows="3" placeholder="Write feedback here..." class="w-full p-3 rounded-lg bg-slate-950 border border-slate-800 text-white focus:outline-none"></textarea>
+        </div>
+      </div>
+
+      <button onclick="submitNewReview()" class="w-full py-3 rounded-xl bg-accent-amber hover:bg-amber-600 text-slate-950 font-bold text-xs shadow-lg transition-all">
+        Publish Review
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: SUBSCRIPTION PRICING -->
+  <div id="pricingModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-2xl p-6 space-y-6 shadow-2xl relative">
+      <button onclick="closeModal('pricingModal')" class="absolute top-5 right-5 text-slate-400 hover:text-white">
+        <i class="fa-solid fa-xmark text-xl"></i>
+      </button>
+
+      <div class="text-center space-y-1">
+        <h3 class="text-2xl font-extrabold text-white">Upgrade Your Tier</h3>
+        <p class="text-xs text-slate-400">Increase video conversion allowances.</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3 flex flex-col justify-between">
+          <div>
+            <h4 class="font-bold text-white text-sm">Free Tier</h4>
+            <p class="text-xl font-extrabold text-white">$0</p>
+            <p class="text-[11px] text-slate-400 pt-2">• 5 Free Videos</p>
+          </div>
+          <button onclick="selectTier('Free')" class="w-full py-2 rounded-xl bg-slate-800 text-white font-bold text-xs">Select Free</button>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3 flex flex-col justify-between">
+          <div>
+            <h4 class="font-bold text-white text-sm">Starter Tier</h4>
+            <p class="text-xl font-extrabold text-white">$9 <span class="text-[10px] text-slate-500">/mo</span></p>
+            <p class="text-[11px] text-slate-300 pt-2">• 10 Videos / month</p>
+          </div>
+          <button onclick="selectTier('Starter')" class="w-full py-2 rounded-xl bg-brand-600 text-white font-bold text-xs">Select Starter</button>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-gradient-to-b from-brand-900/40 to-slate-950 border-2 border-brand-500 space-y-3 flex flex-col justify-between">
+          <div>
+            <h4 class="font-bold text-white text-sm">Creator Pro</h4>
+            <p class="text-xl font-extrabold text-white">$19 <span class="text-[10px] text-slate-400">/mo</span></p>
+            <p class="text-[11px] text-slate-300 pt-2">• 200 Videos / month</p>
+          </div>
+          <button onclick="selectTier('Pro')" class="w-full py-2 rounded-xl bg-brand-600 text-white font-bold text-xs shadow-lg">Upgrade Pro</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs font-semibold shadow-2xl flex items-center gap-2">
+    <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+    <span id="toastMsg">Action completed</span>
+  </div>
+
+  <!-- Application Logic -->
+  <script>
+    const STORAGE_KEY = 'creatorpulse_suite_v6';
+
+    let appState = {
+      userTier: "Free",
+      videosProcessed: 0,
+      activeClips: [
+        { id: 1, title: "1 Secret to 2x SaaS Revenue", score: 94, timestamp: "00:12 - 00:54", caption: '"This 1 trick DOUBLED my SaaS revenue in 30 days..."' },
+        { id: 2, title: "Why Most Startups Fail Early", score: 88, timestamp: "02:15 - 02:48", caption: '"Stop spending months building features nobody asked for!"' }
+      ],
+      selectedClipId: 1,
+      proposalVendor: "Apex Digital Agency",
+      proposalClient: "Acme Corp",
+      proposalLineItems: [
+        { desc: "Custom Web Application Design & UI/UX", price: 3500 },
+        { desc: "Full-Stack Development & API Integration", price: 4500 }
+      ],
+      reviewsData: [
+        { name: "Sarah Jenkins", role: "Founder, ScaleLab", stars: 5, text: "CreatorPulse helped us close $20k in proposals in our first month!" },
+        { name: "David Chen", role: "YouTuber (120k subs)", stars: 5, text: "The vertical shorts clipper saves me 10+ hours of editing every week." }
+      ],
+      widgetTitle: "Trusted by Growth Founders",
+      widgetLayout: "grid",
+      widgetStarColor: "amber",
+      widgetCardTheme: "dark"
+    };
+
+    const TIER_LIMITS = { Free: 5, Starter: 10, Pro: 200 };
+    let canvas = null, ctx = null, isDrawing = false;
+    let activeModalStars = 5;
+
+    document.addEventListener('DOMContentLoaded', function() {
+      loadStateFromStorage();
+      renderAllComponents();
+      initCanvasAnimation();
+    });
+
+    function saveStateToStorage() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); } catch(e) {}
+    }
+
+    function loadStateFromStorage() {
+      try {
+        const data = localStorage.getItem(STORAGE_KEY);
+        if (data) appState = { ...appState, ...JSON.parse(data) };
+      } catch(e) {}
+    }
+
+    function renderAllComponents() {
+      const limit = TIER_LIMITS[appState.userTier] || 5;
+      const pct = Math.min(100, Math.round((appState.videosProcessed / limit) * 100));
+
+      document.getElementById('navTierBadge').innerText = `${appState.userTier} Tier`;
+      document.getElementById('sidebarTierLabel').innerText = `${appState.userTier} Tier`;
+      document.getElementById('usageClipsCount').innerText = `${appState.videosProcessed} / ${limit} Videos`;
+      document.getElementById('usagePercentText').innerText = `${pct}% Used`;
+      document.getElementById('usageProgressBar').style.width = `${pct}%`;
+
+      document.getElementById('kpiTierVal').innerText = `${appState.userTier} Plan`;
+      document.getElementById('kpiClipsVal').innerText = `${appState.videosProcessed} / ${limit}`;
+
+      const alertBox = document.getElementById('limitAlertBox');
+      if (appState.videosProcessed >= limit) {
+        alertBox.classList.remove('hidden');
+      } else {
+        alertBox.classList.add('hidden');
+      }
+
+      // Sync Review Customizer Inputs
+      const titleIn = document.getElementById('widgetTitleInput');
+      const layoutIn = document.getElementById('widgetLayoutStyle');
+      const colorIn = document.getElementById('widgetStarColor');
+      const themeIn = document.getElementById('widgetCardTheme');
+
+      if (titleIn) titleIn.value = appState.widgetTitle;
+      if (layoutIn) layoutIn.value = appState.widgetLayout;
+      if (colorIn) colorIn.value = appState.widgetStarColor;
+      if (themeIn) themeIn.value = appState.widgetCardTheme;
+
+      renderClipList();
+      renderProposalInputs();
+      updateProposalPreview(false);
+      updateWidgetPreview(false);
+    }
+
+    function selectTier(tier) {
+      appState.userTier = tier;
+      saveStateToStorage();
+      renderAllComponents();
+      closeModal('pricingModal');
+      showToast(`Updated plan to ${tier} Tier!`);
+    }
+
+    function switchTab(tabId) {
+      ['dashboard', 'clipper', 'proposals', 'reviews'].forEach(t => {
+        document.getElementById(`sec-${t}`).classList.add('hidden');
+        const nav = document.getElementById(`nav-${t}`);
+        if (nav) {
+          nav.classList.remove('bg-brand-600', 'text-white', 'shadow-lg');
+          nav.classList.add('text-slate-400');
+        }
+      });
+
+      document.getElementById(`sec-${tabId}`).classList.remove('hidden');
+      const activeNav = document.getElementById(`nav-${tabId}`);
+      if (activeNav) {
+        activeNav.classList.add('bg-brand-600', 'text-white', 'shadow-lg');
+        activeNav.classList.remove('text-slate-400');
+      }
+
+      if (tabId === 'proposals') setTimeout(initSignatureCanvas, 100);
+    }
+
+    function processVideoUrl() {
+      const limit = TIER_LIMITS[appState.userTier] || 5;
+      if (appState.videosProcessed >= limit) {
+        showToast(`Limit reached (${appState.videosProcessed}/${limit}). Upgrade plan to process more!`, 'error');
+        openModal('pricingModal');
+        return;
+      }
+
+      appState.videosProcessed++;
+      appState.activeClips.unshift({
+        id: Date.now(),
+        title: `Viral Moment #${appState.videosProcessed}`,
+        score: Math.floor(Math.random() * 12) + 88,
+        timestamp: "00:10 - 00:45",
+        caption: '"Actionable strategy highlight generated by AI!"'
+      });
+
+      saveStateToStorage();
+      renderAllComponents();
+      showToast(`Video processed! (${appState.videosProcessed}/${limit} used)`);
+    }
+
+    function renderClipList() {
+      const container = document.getElementById('clipListContainer');
+      if (!container) return;
+      container.innerHTML = appState.activeClips.map(clip => `
+        <div onclick="selectClipPreview(${clip.id})" class="p-4 rounded-xl glass-panel hover:border-accent-pink/50 cursor-pointer flex items-center justify-between transition-all ${clip.id === appState.selectedClipId ? 'border-accent-pink bg-slate-900/90' : ''}">
+          <div class="space-y-1">
+            <p class="font-bold text-white text-xs">${clip.title}</p>
+            <p class="text-[11px] font-mono text-slate-500"><i class="fa-regular fa-clock mr-1"></i>${clip.timestamp}</p>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-500/20 text-amber-400">Score: ${clip.score}/100</span>
+        </div>
+      `).join('');
+    }
+
+    function selectClipPreview(clipId) {
+      appState.selectedClipId = clipId;
+      const clip = appState.activeClips.find(c => c.id === clipId);
+      if (!clip) return;
+      document.getElementById('previewScore').innerText = `Virality: ${clip.score}`;
+      document.getElementById('previewCaption').innerText = clip.caption;
+      document.getElementById('previewTimestamp').innerText = clip.timestamp;
+      renderClipList();
+    }
+
+    function renderProposalInputs() {
+      const container = document.getElementById('lineItemsInputs');
+      if (!container) return;
+      container.innerHTML = appState.proposalLineItems.map((item, idx) => `
+        <div class="flex gap-2 items-center">
+          <input type="text" value="${item.desc}" oninput="appState.proposalLineItems[${idx}].desc = this.value; updateProposalPreview();" class="flex-1 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-white">
+          <input type="number" value="${item.price}" oninput="appState.proposalLineItems[${idx}].price = parseFloat(this.value) || 0; updateProposalPreview();" class="w-24 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-white">
+        </div>
+      `).join('');
+    }
+
+    function addProposalLineItem() {
+      appState.proposalLineItems.push({ desc: "New Deliverable Item", price: 500 });
+      renderProposalInputs();
+      updateProposalPreview();
+    }
+
+    function updateProposalPreview(save = true) {
+      const vendorInput = document.getElementById('propVendorName');
+      const clientInput = document.getElementById('propClientName');
+      if (vendorInput) appState.proposalVendor = vendorInput.value;
+      if (clientInput) appState.proposalClient = clientInput.value;
+
+      if (save) saveStateToStorage();
+
+      document.getElementById('pdfVendor').innerText = appState.proposalVendor;
+      document.getElementById('pdfClient').innerText = appState.proposalClient;
+
+      let subtotal = 0;
+      const tbody = document.getElementById('pdfTableBody');
+      if (tbody) {
+        tbody.innerHTML = appState.proposalLineItems.map(item => {
+          subtotal += item.price;
+          return `<tr><td class="py-2 text-slate-800 font-medium">${item.desc}</td><td class="py-2 text-right font-bold text-slate-900">$${item.price.toLocaleString()}</td></tr>`;
+        }).join('');
+      }
+
+      document.getElementById('pdfSubtotal').innerText = `$${subtotal.toLocaleString()}`;
+      document.getElementById('pdfTotal').innerText = `$${subtotal.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+    }
+
+    function initSignatureCanvas() {
+      canvas = document.getElementById('sigCanvas');
+      if (!canvas) return;
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+      ctx = canvas.getContext('2d');
+      ctx.strokeStyle = '#6366f1';
+      ctx.lineWidth = 2;
+
+      canvas.onmousedown = (e) => { isDrawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); };
+      canvas.onmousemove = (e) => { if (isDrawing) { ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); } };
+      canvas.onmouseup = () => { isDrawing = false; updateSignatureText(); };
+    }
+
+    function clearSignatureCanvas() {
+      if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+      document.getElementById('sigText').innerText = "Draw signature on pad to approve...";
+      document.getElementById('sigText').className = "text-xs text-slate-400 font-serif italic";
+    }
+
+    function updateSignatureText() {
+      document.getElementById('sigText').innerText = "✅ Signed Electronically";
+      document.getElementById('sigText').className = "text-xs font-bold text-emerald-600";
+    }
+
+    function printProposalPDF() { window.print(); }
+
+    function downloadClip() { showToast("HD Render started!"); }
+
+    function updateWidgetPreview(save = true) {
+      const titleElem = document.getElementById('widgetTitleInput');
+      const layoutElem = document.getElementById('widgetLayoutStyle');
+      const colorElem = document.getElementById('widgetStarColor');
+      const themeElem = document.getElementById('widgetCardTheme');
+
+      if (titleElem) appState.widgetTitle = titleElem.value;
+      if (layoutElem) appState.widgetLayout = layoutElem.value;
+      if (colorElem) appState.widgetStarColor = colorElem.value;
+      if (themeElem) appState.widgetCardTheme = themeElem.value;
+
+      if (save) saveStateToStorage();
+
+      const container = document.getElementById('widgetPreviewBox');
+      if (!container) return;
+
+      // Color mapping
+      let starColorClass = "text-amber-400";
+      if (appState.widgetStarColor === "emerald") starColorClass = "text-emerald-400";
+      if (appState.widgetStarColor === "cyan") starColorClass = "text-cyan-400";
+      if (appState.widgetStarColor === "indigo") starColorClass = "text-indigo-400";
+
+      // Card theme mapping
+      let cardStyleClass = "bg-slate-900 border-slate-800 text-slate-200";
+      if (appState.widgetCardTheme === "charcoal") cardStyleClass = "bg-slate-950 border-slate-900 text-slate-100";
+      if (appState.widgetCardTheme === "light") cardStyleClass = "bg-white border-slate-200 text-slate-900 shadow-sm";
+
+      if (appState.widgetLayout === "badge") {
+        container.innerHTML = `
+          <div class="p-4 rounded-2xl ${cardStyleClass} border flex items-center justify-between shadow-xl max-w-sm mx-auto">
+            <div class="flex items-center gap-3">
+              <div class="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400 text-lg">
+                <i class="fa-solid fa-shield-check"></i>
+              </div>
+              <div>
+                <p class="text-xs font-bold">${appState.widgetTitle}</p>
+                <p class="text-[10px] text-slate-400">Rated 5.0/5 by ${appState.reviewsData.length}+ clients</p>
+              </div>
+            </div>
+            <div class="flex text-xs ${starColorClass}">
+              <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+            </div>
+          </div>
+        `;
+      } else {
+        const gridCols = appState.widgetLayout === "grid" ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1";
+        container.innerHTML = `
+          <div class="space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+              <h4 class="text-xs font-bold text-white uppercase tracking-wider">${appState.widgetTitle}</h4>
+              <div class="flex text-xs ${starColorClass}">
+                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+              </div>
+            </div>
+
+            <div class="grid ${gridCols} gap-3">
+              ${appState.reviewsData.map(r => `
+                <div class="p-4 rounded-xl border ${cardStyleClass} space-y-2">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="font-bold text-xs">${r.name}</p>
+                      <p class="text-[10px] text-slate-400">${r.role || "Verified Customer"}</p>
+                    </div>
+                    <div class="flex text-[10px] ${starColorClass}">
+                      ${Array(r.stars || 5).fill('<i class="fa-solid fa-star"></i>').join('')}
+                    </div>
+                  </div>
+                  <p class="text-xs italic">"${r.text}"</p>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function setModalStars(stars) {
+      activeModalStars = stars;
+      const container = document.getElementById('modalStarSelector');
+      if (!container) return;
+      const icons = container.querySelectorAll('i');
+      icons.forEach((ic, idx) => {
+        if (idx < stars) {
+          ic.className = 'fa-solid fa-star text-amber-400';
+        } else {
+          ic.className = 'fa-regular fa-star text-slate-600';
+        }
+      });
+    }
+
+    function submitNewReview() {
+      const name = document.getElementById('revInputName').value;
+      const role = document.getElementById('revInputRole').value;
+      const text = document.getElementById('revInputText').value;
+
+      if (!name || !text) return;
+
+      appState.reviewsData.unshift({
+        name,
+        role: role || "Verified Client",
+        stars: activeModalStars,
+        text
+      });
+
+      saveStateToStorage();
+      closeModal('addReviewModal');
+      updateWidgetPreview();
+      showToast("Review published to widget!");
+
+      document.getElementById('revInputName').value = '';
+      document.getElementById('revInputRole').value = '';
+      document.getElementById('revInputText').value = '';
+    }
+
+    function initCanvasAnimation() {
+      const c = document.getElementById('previewCanvasBg');
+      if (!c) return;
+      const ctx2 = c.getContext('2d');
+      let t = 0;
+      function animate() {
+        c.width = c.offsetWidth || 220;
+        c.height = c.offsetHeight || 380;
+        ctx2.fillStyle = '#090d16';
+        ctx2.fillRect(0, 0, c.width, c.height);
+        
+        const grad = ctx2.createLinearGradient(0, 0, c.width, c.height);
+        grad.addColorStop(0, '#312e81');
+        grad.addColorStop(1, '#ec4899');
+        ctx2.fillStyle = grad;
+        
+        ctx2.beginPath();
+        ctx2.arc(c.width / 2 + Math.sin(t) * 15, c.height / 2 + Math.cos(t) * 15, 60, 0, Math.PI * 2);
+        ctx2.fill();
+        t += 0.03;
+        requestAnimationFrame(animate);
+      }
+      animate();
+    }
+
+    function resetSuiteData() {
+      if (confirm("Reset workspace demo data?")) {
+        localStorage.removeItem(STORAGE_KEY);
+        location.reload();
+      }
+    }
+
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+    function showToast(msg, type = 'success') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').innerText = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
+    }
+  </script>
+</body>
+</html>
